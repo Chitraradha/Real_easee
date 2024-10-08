@@ -32,4 +32,11 @@ class FirebaseAuthenticationService {
       }
     }
   }
+   Future<void>sendPasswordReset(String email)async{
+    try{
+      await auth.sendPasswordResetEmail(email: email);
+    }catch(e){
+      print(e.toString());
+    }
+  }
 }
