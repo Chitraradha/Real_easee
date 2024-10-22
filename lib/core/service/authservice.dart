@@ -1,4 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:real__ease/View/home/navi.dart';
 
 class FirebaseAuthenticationService {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -39,4 +42,32 @@ class FirebaseAuthenticationService {
       print(e.toString());
     }
   }
+
+Future<UserCredential?> loginWithGoogle(context) async {
+  try {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    if (googleUser == null) {
+      print("User canceled the Google sign-in.");
+      return null;
+    }
+
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
+
+    final OAuthCredential cred = GoogleAuthProvider.credential(
+      idToken: googleAuth.idToken,
+      accessToken: googleAuth.accessToken,
+    );
+
+     await auth.signInWithCredential(cred);
+     Navigator.push(context, MaterialPageRoute(builder: (context)=>NavigatorMAain()));
+  
+  } catch (e) {
+    print("An error occurred during Google sign-in: ${e.toString()}");
+    return null;
+  }
 }
+
+}
+
+

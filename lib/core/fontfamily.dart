@@ -17,3 +17,4 @@ TextStyle posttext1=GoogleFonts.inknutAntiqua(fontSize: 16,color: RealColor.bgco
 TextStyle posttext2=GoogleFonts.inknutAntiqua(fontSize: 16,color: RealColor.textcolor,fontWeight: FontWeight.bold);
 TextStyle profiletext=GoogleFonts.inknutAntiqua(fontSize: 20,color: RealColor.bgcolor,fontWeight: FontWeight.bold);
 TextStyle postdetails=GoogleFonts.inknutAntiqua(fontSize: 20,color: RealColor.textcolor,fontWeight: FontWeight.bold);
+TextStyle nametext=GoogleFonts.inknutAntiqua(fontSize: 20,color: RealColor.bgcolor);

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class TypeofpropertyCategory extends ChangeNotifier{
   gettypeproperty()async{
- CollectionReference property = FirebaseFirestore.instance.collection("SELLPOST");
+ CollectionReference property = FirebaseFirestore.instance.collection("POST");
  List category=[];
   QuerySnapshot query=await property.get();
   for(var doc in query.docs){
@@ -16,5 +16,5 @@ class TypeofpropertyCategory extends ChangeNotifier{
   }
   return category;
   }
-  
+
 }

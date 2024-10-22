@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class PostModel {
   String id;
   String name;
@@ -23,8 +25,6 @@ class PostModel {
   String notes; 
   String rentandsell;
 
-  
-
   PostModel(
     this.id,
     this.name,
@@ -46,8 +46,39 @@ class PostModel {
     this.outdoor,
     this.indoor,
     this.climate,
-    this.imageUrls, // Include in constructor
+    this.imageUrls, 
     this.notes,
     this.rentandsell 
   );
+
+  
+  factory PostModel.fromFirestore(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    
+    return PostModel(
+      doc.id,
+      data['name'] ?? '',
+      data['email'] ?? '',
+      data['phone'] ?? '',
+      data['address'] ?? '',
+      data['city'] ?? '',
+      data['price'] ?? '',
+      data['bed'] ?? '',
+      data['bathroom'] ?? '',
+      data['permanentads'] ?? '',
+      data['car'] ?? '',
+      data['people'] ?? '',
+      data['land'] ?? '',
+      data['location'] ?? '',
+      data['typeofselling'] ?? '',
+      data['typeofproperty'] ?? '',
+      data['methodsofselling'] ?? '',
+      List<String>.from(data['outdoor'] ?? []),
+      List<String>.from(data['indoor'] ?? []),
+      List<String>.from(data['climate'] ?? []),
+      List<String>.from(data['imageUrls'] ?? []), 
+      data['notes'] ?? '',
+      data['rentandsell'] ?? ''
+    );
+  }
 }

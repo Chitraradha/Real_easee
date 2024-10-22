@@ -230,30 +230,18 @@ class _SignUppageState extends State<SignUppage> {
                           color: RealColor.buttncolor,
                           borderRadius: BorderRadius.circular(5)),
                       child: IconButton(
-                          onPressed: () {},
+                          onPressed: () async{
+                           await authService.loginWithGoogle(context);
+                           
+                          },
                           icon: const Icon(
                             FontAwesomeIcons.google,
                             color: Colors.black,
                             size: 40,
                           )),
                     ),
-                    const SizedBox(
-                      width: 30,
-                    ),
-                    Container(
-                      width: boxwidth,
-                      height: 80,
-                      decoration: BoxDecoration(
-                          color: RealColor.buttncolor,
-                          borderRadius: BorderRadius.circular(5)),
-                      child: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            FontAwesomeIcons.facebook,
-                            color: Colors.black,
-                            size: 40,
-                          )),
-                    ),
+                    
+                    
                   ],
                 ),
                  SizedBox(height:MediaQuery.of(context).size.height*0.1,),

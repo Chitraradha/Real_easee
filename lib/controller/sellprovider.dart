@@ -80,6 +80,7 @@ class PostProvider extends ChangeNotifier {
   // Function to add post along with image URLs, notes, and additional features
   void addsellpost(BuildContext context, String rentandsell) {
     String pid = DateTime.now().millisecondsSinceEpoch.toString();
+    
     HashMap<String, Object> map = HashMap();
     map["pname"] = pnamecontroller.text;
     map["pemail"] = emailcontroller.text;
@@ -108,13 +109,13 @@ class PostProvider extends ChangeNotifier {
     db.collection("POST").doc(pid).set(map);
   }
 
-  // Function to add uploaded image URLs
+
   void addImageUrl(String url) {
     imagesUrls.add(url);
     notifyListeners();
   }
 
-  // Function to clear the form fields after posting
+  
   void postClear(){
     pnamecontroller.clear();
     emailcontroller.clear();
@@ -180,5 +181,39 @@ class PostProvider extends ChangeNotifier {
         } notifyListeners();
       }
     });
+  }
+
+   void updatesellpost(String id) {
+  db.collection("POST").doc(id).get().then((value) {
+    if (value.exists) {
+      Map<dynamic, dynamic> map = value.data() as Map;
+      
+      pnamecontroller.text = map['pname'].toString();
+      emailcontroller.text = map['pemail'].toString();
+      phonecontroller.text = map['Pphone'].toString();
+      addresscontroller.text = map['paddress'].toString();
+      citycontroller.text = map['city'].toString();
+      priceController.text = map['price'].toString();
+      bedroomcontroller.text = map['bed'].toString();
+      bathroomcontroller.text = map['bath'].toString();
+      premanentaddcontroller.text = map['permanentads'].toString();
+      carcontroller.text = map['car'].toString();
+      peoplecontroller.text = map['time'].toString();
+      landcontroller.text = map['land'].toString();
+      sellocationcontroller.text = map['sellloc'].toString();
+      notesController.text = map['Notes'].toString();
+      outdoorfeatures = map['Outdoor'].toString().split(', ');
+      indoorfeatures = map['Indoor'].toString().split(', ');
+      climatefeatures = map['Climate'].toString().split(', ');
+      
+      notifyListeners();
+    }
+  });
+}
+
+void deletesellpost(std,context){
+    db.collection("POST").doc(std).delete();
+    getSellingPosts();
+    notifyListeners();
   }
   }

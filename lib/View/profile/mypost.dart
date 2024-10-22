@@ -12,7 +12,7 @@ class SeeMyPost extends StatelessWidget {
       Column(
         children: [
           profilebar("Post"),
-          Expanded(child: PostContainer())
+          Expanded(child: PostContainer(searchKey: '',))
         ],
       )
     

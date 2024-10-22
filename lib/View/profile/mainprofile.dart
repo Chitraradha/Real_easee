@@ -23,11 +23,15 @@ class MainProfile extends StatefulWidget {
 }
 
 class _MainProfileState extends State<MainProfile> {
+  TextEditingController nameController = TextEditingController();
+  String? uid;
+final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   File? _image; // Variable to store the selected image
   final ImagePicker _picker = ImagePicker(); // ImagePicker instance
   String? _profileImageUrl; // Variable to store the profile image URL
 
-  // Fetch the profile image URL from Firestore
+  
   Future<void> _fetchProfileImageUrl() async {
     try {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
@@ -95,9 +99,31 @@ class _MainProfileState extends State<MainProfile> {
   @override
   void initState() {
     super.initState();
-    _fetchProfileImageUrl(); // Fetch profile image URL on initialization
+    _fetchProfileImageUrl();
+    fetchUserProfile(); // Fetch profile image URL on initialization
   }
 
+
+ Future<void> fetchUserProfile() async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        uid = user.uid;
+        DocumentSnapshot userProfile =
+            await _db.collection('PROFILE').doc(uid).get();
+
+        if (userProfile.exists) {
+          Map<String, dynamic> data =
+              userProfile.data() as Map<String, dynamic>;
+
+          // Set the fetched data to the controllers
+          nameController.text = data['name'] ?? '';
+        }
+      }
+    } catch (e) {
+      print('Error fetching user profile: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -157,7 +183,7 @@ class _MainProfileState extends State<MainProfile> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      Text("Chitra", style: profiletext),
+                      Text(nameController.text, style: profiletext),
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () {

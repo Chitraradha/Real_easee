@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:real__ease/View/Widget/appbar.dart';
 import 'package:real__ease/View/Widget/viewdetails.dart';
-import 'package:real__ease/View/chat/profilechat.dart';
 import 'package:real__ease/View/post/moredetail.dart';
 import 'package:real__ease/View/post/paycash.dart';
 import 'package:real__ease/controller/rentprovider.dart';
@@ -10,11 +9,11 @@ import 'package:real__ease/controller/sellprovider.dart';
 import 'package:real__ease/core/colorpage.dart';
 import 'package:real__ease/core/fontfamily.dart';
 import 'package:real__ease/model/postmodel.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ViewPostDetails extends StatefulWidget {
-  final PostModel posts; // Define the type of the post
+  final PostModel posts; 
   const ViewPostDetails({super.key, required this.posts});
 
   @override
@@ -29,15 +28,14 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
     super.initState();
     Provider.of<PostProvider>(context, listen: false).getSellingPosts();
     Provider.of<RentProvider>(context, listen: false).getRentPosts();
-    _fetchProfileImageUrl(); // Fetch the profile image URL
+    _fetchProfileImageUrl(); 
   }
 
-  // Fetch the profile image URL from Firestore
   Future<void> _fetchProfileImageUrl() async {
     try {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('PROFILE')
-          .doc(widget.posts.id) // Use the user ID from the post model
+          .doc(widget.posts.id) // Ensure ownerId exists in PostModel
           .get();
 
       if (userDoc.exists && userDoc['profileImage'] != null) {
@@ -47,6 +45,16 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
       }
     } catch (e) {
       print('Error fetching profile image URL: $e');
+    }
+  }
+
+  void openwhatsapp(String phonenumber, String text) async {
+    var url =
+        'https://api.whatsapp.com/send?phone=$phonenumber&text=${Uri.encodeComponent(text)}';
+    if (await launchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
+    } else {
+      print('Could not open WhatsApp: $url');
     }
   }
 
@@ -87,6 +95,9 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
                                 child: Image.network(
                                   widget.posts.imageUrls[index], // Fetch images from the post
                                   fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(Icons.error);
+                                  },
                                 ),
                               );
                             },
@@ -96,13 +107,14 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
                       Positioned(
                         bottom: 20,
                         left: 0,
-                        right: 0, // Center the dots horizontally
+                        right: 0, 
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center, // Center the dots
-                          children: List.generate(widget.posts.imageUrls.length, (index) {
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(widget.posts.imageUrls.length,
+                              (index) {
                             return Container(
                               margin: const EdgeInsets.symmetric(horizontal: 4),
-                              width: currentPage == index ? 12 : 8, // Active dot size change
+                              width: currentPage == index ? 12 : 8, 
                               height: currentPage == index ? 12 : 8,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
@@ -129,25 +141,12 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          CircleAvatar(
-                            radius: 40,
-                            backgroundImage: profileImageUrl != null 
-                                ? NetworkImage(profileImageUrl!) 
-                                : null,
-                            child: profileImageUrl == null 
-                                ? const Icon(
-                                    Icons.person,
-                                    size: 40,
-                                    color: Colors.white,
-                                  )
-                                : null,
-                          ),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                widget.posts.name, // Fetch owner's name
-                                style: hometext,
+                                widget.posts.name, 
+                                style: nametext
                               ),
                               const SizedBox(height: 10),
                               Text(
@@ -164,11 +163,9 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
                                 backgroundColor: const Color(0xFFD76076),
                                 foregroundColor: const Color(0xFF0D0F44),
                               ),
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => PersonalChatScreen()));
+                              onPressed: () async {
+                                openwhatsapp(
+                                    widget.posts.phone.toString(), "hi");
                               },
                               child: const Text("Chat"),
                             ),
@@ -192,7 +189,8 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ViewMoreDetails()));
+                                    builder: (context) => ViewMoreDetails(
+                                        posts: widget.posts)));
                           },
                           child: Text(
                             "More",
@@ -202,10 +200,13 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
                       ],
                     ),
                   ),
-                  // Property details displayed here
-                  viewdetails(Icons.bed, "${widget.posts.bed} Bedroom", Icons.currency_rupee, "${widget.posts.price}"),
-                  viewdetails(Icons.bathtub, "${widget.posts.bathroom} Bathroom", Icons.person, "${widget.posts.people}"), // email for contact
-
+                  viewdetails(Icons.bed, "${widget.posts.bed} Bedroom",
+                      Icons.currency_rupee, "${widget.posts.price}"),
+                  viewdetails(
+                      Icons.bathtub,
+                      "${widget.posts.bathroom} Bathroom",
+                      Icons.person,
+                      "${widget.posts.people}"),
                   const SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.only(left: 10, right: 10),
@@ -216,7 +217,9 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
                         color: RealColor.textcolor,
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      child: Center(child: Text(widget.posts.notes ?? 'No additional notes')),
+                      child: Center(
+                        child: Text(widget.posts.notes ?? 'No additional notes'),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 40),
@@ -233,10 +236,14 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
                           ),
                         ),
                         onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => PayCash()));
+                          // Navigate to the payment page
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) => PayCash( 
+                              upiId: "your_upi_id_here", 
+                              amount: int.parse(widget.posts.price).toDouble(), // Price from the post
+                              regId: widget.posts.id, // Pass relevant registration ID
+                            ),
+                          ));
                         },
                         child: Text(
                           "Buy the Property",

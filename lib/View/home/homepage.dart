@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:real__ease/View/chat/chat.dart';
 import 'package:real__ease/View/home/category.dart';
 import 'package:real__ease/View/post/seeall.dart';
 import 'package:real__ease/controller/rentprovider.dart';
@@ -17,11 +16,22 @@ class HomePagee extends StatefulWidget {
 }
 
 class _HomePageeState extends State<HomePagee> {
+  final TextEditingController searchController = TextEditingController();
+  String searchKey = '';
+
   @override
   void initState() {
     super.initState();
-     Provider.of<PostProvider>(context, listen: false).getSellingPosts();
-     Provider.of<RentProvider>(context,listen: false).getRentPosts();
+    
+    // Fetch posts when the widget initializes
+    Provider.of<PostProvider>(context, listen: false).getSellingPosts();
+    Provider.of<RentProvider>(context, listen: false).getRentPosts();
+  }
+
+  void onSearchChanged() {
+    setState(() {
+      searchKey = searchController.text; // Update the searchKey
+    });
   }
 
   @override
@@ -43,27 +53,15 @@ class _HomePageeState extends State<HomePagee> {
                   "REAL EASE",
                   style: appbarfont1,
                 ),
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ChathomeScreen(),
-                      ),
-                    );
-                  },
-                  child: Image.asset(
-                    "asset/message.png",
-                    scale: 12,
-                    color: RealColor.textcolor,
-                  ),
-                )
+                const SizedBox(width: 30)
               ],
             ),
             const SizedBox(height: 20),
-            TextField(
+            TextFormField(
+              controller: searchController, // Assign controller
+              onChanged: (value) => onSearchChanged(), // Call onSearchChanged on text change
               decoration: InputDecoration(
-                hintText: 'Search...',
+                hintText: 'Search by location...',
                 hintStyle: TextStyle(color: RealColor.bgcolor),
                 filled: true,
                 fillColor: RealColor.textcolor,
@@ -77,26 +75,24 @@ class _HomePageeState extends State<HomePagee> {
             const SizedBox(height: 20),
             const CategorySection(),
             const SizedBox(height: 20),
-            Consumer<PostProvider>(
-              builder: (context, value, child) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Recently Added", style: buttonfont),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const SeeAllPost()),
-                        );
-                      },
-                      child: Text("See All", style: buttoncolor),
-                    )
-                  ],
-                );
-              },
-            ),
-            const Expanded(child: PostContainer())
+            Consumer<PostProvider>(builder: (context, value, child) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Recently Added", style: buttonfont),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SeeAllPost()),
+                      );
+                    },
+                    child: Text("See All", style: buttoncolor),
+                  ),
+                ],
+              );
+            }),
+            Expanded(child: PostContainer(searchKey: searchKey)) // Pass searchKey to PostContainer
           ],
         ),
       ),

@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "1090623725456",
+    "project_id": "realesae",
+    "storage_bucket": "realesae.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1090623725456:android:6730173c811a859d335d15",
+        "android_client_info": {
+          "package_name": "com.example.real_esa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1090623725456-s9e3bu7og026ifimhojsc718ovu86pht.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.real_esa",
+            "certificate_hash": "f75dc8436dc7e9185af14b89d874099743bfeed1"
+          }
+        },
+        {
+          "client_id": "1090623725456-qm95a01j61lfh5oco8jvhmlfjl8gqnld.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFA_pX9Sb7TejaDgajMtJOiprecDgZXlI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1090623725456-qm95a01j61lfh5oco8jvhmlfjl8gqnld.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1090623725456-g750hcdjkabmuc09c632baf9rg28gat4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.realEsa"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

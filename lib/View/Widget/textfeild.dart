@@ -90,29 +90,21 @@ textcontainer(context,{required title, required navi,required icons}){
 
 }
 
-profileTextform(labeltext) {
-  return Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Container(
-      width: 450,
-      height: 60,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30)
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left:20,),
-            child: Text(labeltext,style: profiletext),
+ Widget profileTextform(TextEditingController controller, String hintText) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: TextFormField(
+        controller: controller, // Bind the controller directly
+        decoration: InputDecoration(
+          hintText: hintText, // Hint text
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-          IconButton(onPressed: (){}, icon: Icon(Icons.edit))
-        ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
 
 ResetPassTextform(labeltext) {
   return Padding(

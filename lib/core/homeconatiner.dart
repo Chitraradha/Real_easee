@@ -1,11 +1,25 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:real__ease/View/post/viewpost.dart';
 import 'package:real__ease/controller/sellprovider.dart';
 import 'package:real__ease/core/colorpage.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class PostContainer extends StatelessWidget { 
-  const PostContainer({super.key});
+class PostContainer extends StatelessWidget {
+  const PostContainer({super.key, required this.searchKey}); // Add searchKey to constructor
+
+  final String searchKey; // Store the searchKey
+
+  static Future<void> openMap(String location) async {
+    // Encode the location to ensure it is URL-friendly
+    final String googleUrl = 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(location)}';
+    try {
+      await launchUrl(Uri.parse(googleUrl));
+    } catch (e) {
+      log('Error opening map: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,15 +27,24 @@ class PostContainer extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Consumer<PostProvider>(
         builder: (context, value, child) {
-        
-          if (value.sellingPosts.isEmpty) {
-            return Center(child: Text('No posts available.',style: TextStyle(color: Colors.amber,fontSize:20 ),));
+          // Filter posts based on searchKey
+          final filteredPosts = value.sellingPosts.where((post) {
+            return post.location.toLowerCase().contains(searchKey.toLowerCase());
+          }).toList();
+
+          if (filteredPosts.isEmpty) {
+            return Center(
+              child: Text(
+                'No posts available.',
+                style: TextStyle(color: Colors.amber, fontSize: 20),
+              ),
+            );
           }
 
           return ListView.builder(
-            itemCount: value.sellingPosts.length,
+            itemCount: filteredPosts.length,
             itemBuilder: (context, index) {
-              final post = value.sellingPosts[index];
+              final post = filteredPosts[index];
               return GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -57,7 +80,7 @@ class PostContainer extends StatelessWidget {
                                 color: RealColor.buttncolor,
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child:Text(
+                              child: Text(
                                 post.rentandsell,
                                 style: TextStyle(color: Colors.white),
                               ),
@@ -103,12 +126,19 @@ class PostContainer extends StatelessWidget {
                                   Row(
                                     children: [
                                       IconButton(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          openMap(post.location); // Pass the location name
+                                        },
                                         icon: Icon(Icons.location_on, color: RealColor.bgcolor),
                                       ),
-                                      Text(
-                                        post.location,
-                                        style: TextStyle(color: RealColor.bgcolor, fontSize: 14),
+                                      GestureDetector(
+                                        onTap: () {
+                                          openMap(post.location); // Pass the location name
+                                        },
+                                        child: Text(
+                                          post.location,
+                                          style: TextStyle(color: RealColor.bgcolor, fontSize: 14),
+                                        ),
                                       ),
                                       const Spacer(),
                                       Text(
@@ -142,7 +172,6 @@ class PostContainer extends StatelessWidget {
                   ),
                 ),
               );
-            
             },
           );
         },

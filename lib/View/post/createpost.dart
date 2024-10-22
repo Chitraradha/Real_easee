@@ -78,7 +78,7 @@ class _CreatePostMainState extends State<CreatePostMain> {
               ],
             ),
           ),
-      Expanded(child: PostContainer())
+      Expanded(child: PostContainer(searchKey: '',))
       
         ],
       ),
