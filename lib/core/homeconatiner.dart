@@ -157,17 +157,17 @@ class PostContainer extends StatelessWidget {
                           ],
                         ),
                       ),
-                      Positioned(
-                        top: 20,
-                        right: 20,
-                        child: CircleAvatar(
-                          backgroundColor: Colors.white,
-                          child: IconButton(
-                            icon: const Icon(Icons.favorite_border, color: Colors.black),
-                            onPressed: () {}, // Implement favorite functionality
-                          ),
-                        ),
-                      ),
+                      // Positioned(
+                      //   top: 20,
+                      //   right: 20,
+                      //   child: CircleAvatar(
+                      //     backgroundColor: Colors.white,
+                      //     child: IconButton(
+                      //       icon: const Icon(Icons.favorite_border, color: Colors.black),
+                      //       onPressed: () {}, // Implement favorite functionality
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),

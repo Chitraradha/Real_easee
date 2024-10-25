@@ -1,9 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:real__ease/View/Widget/appbar.dart';
 import 'package:real__ease/View/Widget/viewdetails.dart';
-import 'package:real__ease/View/post/moredetail.dart';
-import 'package:real__ease/View/post/paycash.dart';
+import 'package:real__ease/View/profile/editmore.dart';
 import 'package:real__ease/controller/rentprovider.dart';
 import 'package:real__ease/controller/sellprovider.dart';
 import 'package:real__ease/core/colorpage.dart';
@@ -12,30 +12,32 @@ import 'package:real__ease/model/postmodel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ViewPostDetails extends StatefulWidget {
-  final PostModel posts;
-  const ViewPostDetails({super.key, required this.posts});
+class EditDetails extends StatefulWidget {
+  final PostModel posts; 
+  const EditDetails({super.key, required this.posts});
 
   @override
-  State<ViewPostDetails> createState() => _ViewPostDetailsState();
+  State<EditDetails> createState() => _EditDetailsState();
 }
 
-class _ViewPostDetailsState extends State<ViewPostDetails> {
-  String? profileImageUrl; // Variable to store the profile image URL
+class _EditDetailsState extends State<EditDetails> {
+  FirebaseFirestore db = FirebaseFirestore.instance;
+  String? idu = FirebaseAuth.instance.currentUser?.uid;
+  String? profileImageUrl;
 
   @override
   void initState() {
     super.initState();
     Provider.of<PostProvider>(context, listen: false).getSellingPosts();
     Provider.of<RentProvider>(context, listen: false).getRentPosts();
-    _fetchProfileImageUrl();
+    _fetchProfileImageUrl(); 
   }
 
   Future<void> _fetchProfileImageUrl() async {
     try {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('PROFILE')
-          .doc(widget.posts.id) // Ensure ownerId exists in PostModel
+          .doc(widget.posts.id)
           .get();
 
       if (userDoc.exists && userDoc['profileImage'] != null) {
@@ -60,6 +62,89 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
 
   int currentPage = 0;
 
+  void _showEditDialog() {
+    final TextEditingController nameController = TextEditingController(text: widget.posts.name);
+    final TextEditingController priceController = TextEditingController(text: widget.posts.price.toString());
+    final TextEditingController bedController = TextEditingController(text: widget.posts.bed.toString());
+    final TextEditingController bathroomController = TextEditingController(text: widget.posts.bathroom.toString());
+    final TextEditingController notesController = TextEditingController(text: widget.posts.notes ?? '');
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Property Details'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Property Name'),
+                ),
+                TextField(
+                  controller: priceController,
+                  decoration: const InputDecoration(labelText: 'Price'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: bedController,
+                  decoration: const InputDecoration(labelText: 'Number of Bedrooms'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: bathroomController,
+                  decoration: const InputDecoration(labelText: 'Number of Bathrooms'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: notesController,
+                  decoration: const InputDecoration(labelText: 'Additional Notes'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Update the widget's posts object
+                setState(() {
+                  widget.posts.name = nameController.text;
+                  widget.posts.price = priceController.text; // Ensure price is a double
+                  widget.posts.bed = bedController.text; // Ensure bed is an int
+                  widget.posts.bathroom = bathroomController.text; // Ensure bathroom is an int
+                  widget.posts.notes = notesController.text;
+                });
+
+                // Update the Firestore document
+                FirebaseFirestore.instance.collection("Userpost").doc(idu).collection("POST").doc(widget.posts.id).update({
+                  'pname': widget.posts.name,
+                  'price': widget.posts.price,
+                  'bed': widget.posts.bed,
+                  'bathroom': widget.posts.bathroom,
+                  'notes': widget.posts.notes,
+                }).then((_) {
+                  Navigator.pop(context); // Close the dialog on success
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Details updated successfully')),
+                  );
+                }).catchError((error) {
+                  print('Error updating document: $error');
+                });
+              },
+              child: const Text('Save'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -67,11 +152,18 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
     return Scaffold(
       body: Column(
         children: [
-          profilebar("Details"),
+          detailsbar("Details", _showEditDialog), // Pass the edit dialog function here
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  // Display the profile image if available
+                  if (profileImageUrl != null)
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage: NetworkImage(profileImageUrl!),
+                    ),
+                  const SizedBox(height: 20),
                   Stack(
                     children: [
                       Padding(
@@ -93,7 +185,7 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
                               return ClipRRect(
                                 borderRadius: BorderRadius.circular(30),
                                 child: Image.network(
-                                  widget.posts.imageUrls[index], // Fetch images from the post
+                                  widget.posts.imageUrls[index],
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return const Icon(Icons.error);
@@ -110,8 +202,7 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
                         right: 0,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(widget.posts.imageUrls.length,
-                              (index) {
+                          children: List.generate(widget.posts.imageUrls.length, (index) {
                             return Container(
                               margin: const EdgeInsets.symmetric(horizontal: 4),
                               width: currentPage == index ? 12 : 8,
@@ -146,8 +237,7 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
                             children: [
                               Text(widget.posts.name, style: nametext),
                               const SizedBox(height: 10),
-                              Text(widget.posts.rentandsell, // Rent or Sell info
-                                  style: hometext),
+                              Text(widget.posts.rentandsell, style: hometext),
                             ],
                           ),
                           SizedBox(
@@ -159,8 +249,7 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
                                 foregroundColor: const Color(0xFF0D0F44),
                               ),
                               onPressed: () async {
-                                openwhatsapp(
-                                    widget.posts.phone.toString(), "hi");
+                                openwhatsapp(widget.posts.phone.toString(), "hi");
                               },
                               child: const Text("Chat"),
                             ),
@@ -175,81 +264,47 @@ class _ViewPostDetailsState extends State<ViewPostDetails> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "Property Details",
-                          style: postdetails,
-                        ),
+                        Text("Property Details", style: postdetails),
                         TextButton(
                           onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ViewMoreDetails(
-                                        posts: widget.posts)));
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>EditMoreDetails(posts: widget.posts)));
                           },
-                          child: Text(
-                            "More",
-                            style: buttoncolor,
-                          ),
+                          child: Text("More", style: buttoncolor),
                         )
                       ],
                     ),
                   ),
-                  viewdetails(Icons.bed, "${widget.posts.bed} Bedroom",
-                      Icons.currency_rupee, "${widget.posts.price}"),
-                  viewdetails(Icons.bathtub, "${widget.posts.bathroom} Bathroom",
-                      Icons.person, "${widget.posts.people}"),
+                  viewdetails(Icons.bed, "${widget.posts.bed} Bedroom", Icons.currency_rupee, "${widget.posts.price}"),
+                  viewdetails(Icons.bathtub, "${widget.posts.bathroom} Bathroom", Icons.person, "${widget.posts.people}"),
                   const SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.only(left: 10, right: 10),
                     child: Container(
                       width: double.infinity,
+                      // Set height to be dynamic
                       decoration: BoxDecoration(
-                        color: RealColor.textcolor,
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.grey.shade200,
                       ),
-                      padding: const EdgeInsets.all(20), // Added padding for notes
-                      child: Text(
-                        widget.posts.notes?.isNotEmpty == true
-                            ? widget.posts.notes!
-                            : 'No additional notes',
-                        style: TextStyle(fontSize: 16), // Adjust font size if needed
-                        textAlign: TextAlign.left, // Align text to the left
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: SizedBox(
-                      width: screenWidth * 2,
-                      height: 60,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: RealColor.buttncolor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(35),
-                          ),
-                        ),
-                        onPressed: () {
-                          // Navigate to the payment page
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => PayCash(
-                              upiId: "your_upi_id_here",
-                              amount:
-                                  int.parse(widget.posts.price).toDouble(), // Price from the post
-                              regId: widget.posts.id, // Pass relevant registration ID
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Additional Notes", style: nametext),
+                            const SizedBox(height: 10),
+                            // Adjusting the Text widget to allow for multiple lines
+                            Text(
+                              widget.posts.notes ?? 'No notes provided',
+                              style: TextStyle(fontSize: 15),
+                              maxLines: null, // Allow the text to take multiple lines
+                              softWrap: true, // Ensure the text wraps to the next line
                             ),
-                          ));
-                        },
-                        child: Text(
-                          "Buy the Property",
-                          style: buttonfont,
+                          ],
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
                 ],
               ),
             ),

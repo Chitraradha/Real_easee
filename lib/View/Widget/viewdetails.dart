@@ -31,6 +31,7 @@ viewdetails(item1,itemname1,item2,itemname2){
           fontWeight: FontWeight.bold,
         ),
       ),
+      
     );
   }
 
@@ -65,5 +66,27 @@ viewdetails(item1,itemname1,item2,itemname2){
           ),
         ),
       ],
+    );
+  }
+
+  Widget sectionProfileTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20.0, bottom: 10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style:  TextStyle(
+              color: RealColor.textcolor,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          
+          
+        ],
+      ),
+      
     );
   }

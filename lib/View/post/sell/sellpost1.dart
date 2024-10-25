@@ -8,107 +8,136 @@ import 'package:real__ease/core/colorpage.dart';
 import 'package:real__ease/core/fontfamily.dart';
 
 class CreateSellPost extends StatelessWidget {
-  const CreateSellPost({super.key});
+  CreateSellPost({super.key, required String id, required String todo});
+
+  final _formKey = GlobalKey<FormState>(); // GlobalKey for form validation
 
   @override
-  Widget build(BuildContext context) {
-     final screenWidth=MediaQuery.of(context).size.width;
-    return Scaffold(
-      body: Consumer<PostProvider>(
-        builder: (context,value,child) {
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                appbar(),
-                Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10),
-                  child: Container(
-                    width: double.infinity,
-                    height: 850,
-                    decoration: BoxDecoration(
-                        color: RealColor.textcolor,
-                        borderRadius: BorderRadius.circular(30)),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 20, right: 10, top: 30),
+Widget build(BuildContext context) {
+  final screenWidth = MediaQuery.of(context).size.width;
+
+  return Scaffold(
+    body: Consumer<PostProvider>(
+      builder: (context, value, child) {
+        return SingleChildScrollView( // Ensure the entire Column is scrollable
+          child: Column(
+            children: [
+              appbar(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: RealColor.textcolor,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                    child: Form(
+                      key: _formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "I am looking to sell a property",
-                            style: posttext1,
+                          Text("I am looking to sell a property", style: posttext1),
+                          const SizedBox(height: 30),
+                          postTextform("Name", value.pnamecontroller, (input) {
+                            if (input == null || input.isEmpty) {
+                              return 'Please enter your name';
+                            }
+                            return null;
+                          }),
+                          const SizedBox(height: 20),
+                          postTextform("Email", value.emailcontroller, (input) {
+                            if (input == null || input.isEmpty) {
+                              return 'Please enter your email';
+                            } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(input)) {
+                              return 'Please enter a valid email';
+                            }
+                            return null;
+                          }),
+                          const SizedBox(height: 20),
+                          postTextform("Phone", value.phonecontroller, (input) {
+                            if (input == null || input.isEmpty) {
+                              return 'Please enter your phone number';
+                            } else if (!RegExp(r'^[0-9]+$').hasMatch(input)) {
+                              return 'Please enter a valid phone number';
+                            }
+                            return null;
+                          }),
+                          const SizedBox(height: 20),
+                          TextFormField(
+                            style: formtextstyle,
+                            controller: value.addresscontroller,
+                            maxLines: 6,
+                            decoration: InputDecoration(
+                              hintText: "Address",
+                              fillColor: RealColor.bgcolor,
+                              filled: true,
+                              hintStyle: formtexthit,
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(color: RealColor.textcolor, width: 3),
+                                borderRadius: BorderRadius.circular(40),
+                              ),
+                            ),
+                            validator: (input) {
+                              if (input == null || input.isEmpty) {
+                                return 'Please enter an address';
+                              }
+                              return null;
+                            },
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10, right: 10),
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 30,
+                          const SizedBox(height: 20),
+                          postTextform("City", value.citycontroller, (input) {
+                            if (input == null || input.isEmpty) {
+                              return 'Please enter your city';
+                            }
+                            return null;
+                          }),
+                          const SizedBox(height: 50),
+                          Align(
+                            alignment: Alignment.topCenter,
+                            child: SizedBox(
+                              width: screenWidth * 0.8,
+                              height: 60,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: RealColor.buttncolor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(35),
+                                  ),
                                 ),
-                                postTextform(" Name", value.pnamecontroller),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                postTextform(" Email", value.emailcontroller),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                postTextform(" Phone", value.phonecontroller),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                TextFormField(
-                                  style: formtextstyle,
-                                  controller: value.addresscontroller,
-                                  maxLines: 6,
-                                  decoration: InputDecoration(
-                                      hintText: "Address",
-                                      
-                                      fillColor: RealColor.bgcolor,
-                                      filled: true,
-                                      hintStyle: formtexthit,
-                                      border: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                            color: RealColor.textcolor,
-                                            width: 3,
-                                          ),
-                                          borderRadius: BorderRadius.circular(40))),
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                postTextform(" City", value.citycontroller),
-                              ],
+                                onPressed: () {
+                                  if (_formKey.currentState!.validate()) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => CreateSellPost2()),
+                                    );
+                                  }
+                                },
+                                child: Text("Next", style: buttonfont),
+                              ),
                             ),
                           ),
-                          SizedBox(height: 50,),
-                          Align(
-                      alignment: Alignment.topCenter,
-                      child: SizedBox(
-                        width: screenWidth*2,
-                        height:60,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: RealColor.buttncolor,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(35))),
-                          onPressed: (){ 
-                            
-                          
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>CreateSellPost2()));
-
-                          }, child: Text("Next",style: buttonfont,))),
-                    ),
-                          SizedBox(height: 25,),
-                          Center(child: TextButton(onPressed: (){Navigator.pop(context);}, child: Text("Back",style: buttoncolor,)))
+                          const SizedBox(height: 25),
+                          Center(
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text("Back", style: buttoncolor),
+                            ),
+                          ),
                         ],
-                      ), 
+                      ),
                     ),
                   ),
                 ),
-              ],
-            ),
-          );
-        }
-      ),
-    );
-  }
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
+}
 }

@@ -26,7 +26,7 @@ class _CreatePostMainState extends State<CreatePostMain> {
     } else if (titlepost == "Sell the Property") {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => CreateSellPost()), // Replace with your SellPage
+        MaterialPageRoute(builder: (context) => CreateSellPost(id: '', todo: '',)), // Replace with your SellPage
       );
     }
   }

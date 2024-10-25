@@ -9,7 +9,6 @@ import 'package:real__ease/controller/rentprovider.dart';
 import 'package:real__ease/controller/sellprovider.dart';
 import 'package:real__ease/core/colorpage.dart';
 
-
 class CreateRentPost5 extends StatefulWidget {
   const CreateRentPost5({super.key});
 
@@ -19,6 +18,7 @@ class CreateRentPost5 extends StatefulWidget {
 
 class _CreateRentPost5State extends State<CreateRentPost5> {
   List<File> pickimages = [];
+  bool isLoading = false; // Variable to track loading state
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +31,10 @@ class _CreateRentPost5State extends State<CreateRentPost5> {
         imageQuality: 80,
       );
       if (files == null) return;
+
+      setState(() {
+        isLoading = true; // Set loading state to true
+      });
 
       for (XFile file in files) {
         String uniqueFileNames = DateTime.now().millisecondsSinceEpoch.toString();
@@ -58,6 +62,10 @@ class _CreateRentPost5State extends State<CreateRentPost5> {
           print("Error in uploading");
         }
       }
+
+      setState(() {
+        isLoading = false; // Set loading state to false after upload
+      });
     }
 
     return Scaffold(
@@ -130,8 +138,10 @@ class _CreateRentPost5State extends State<CreateRentPost5> {
                         ),
                         SizedBox(height: 20),
 
-                        // Scrollable image preview
-                        pickimages.isNotEmpty
+                        // Scrollable image preview or loading indicator
+                        isLoading 
+                          ? Center(child: CircularProgressIndicator())
+                          : pickimages.isNotEmpty
                             ? SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
@@ -180,13 +190,13 @@ class _CreateRentPost5State extends State<CreateRentPost5> {
                         ),
                         SizedBox(height: 10),
                         Container(
-                          height: 200,
+                          height: 500,
                           decoration: BoxDecoration(
                             color: RealColor.bgcolor,
                             borderRadius: BorderRadius.circular(15),
                           ),
                           child: TextField(
-                            maxLines: 10,
+                            maxLines: 20,
                             controller: context.read<PostProvider>().notesController, // Link notes to provider
                             decoration: InputDecoration(
                               hintText: 'Write your notes here...',

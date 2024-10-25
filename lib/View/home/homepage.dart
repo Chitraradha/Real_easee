@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:real__ease/View/home/category.dart';
@@ -16,6 +17,7 @@ class HomePagee extends StatefulWidget {
 }
 
 class _HomePageeState extends State<HomePagee> {
+  FirebaseAuth _auth =FirebaseAuth.instance;
   final TextEditingController searchController = TextEditingController();
   String searchKey = '';
 
@@ -82,6 +84,7 @@ class _HomePageeState extends State<HomePagee> {
                   Text("Recently Added", style: buttonfont),
                   TextButton(
                     onPressed: () {
+                       
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => const SeeAllPost()),

@@ -21,7 +21,7 @@ class _CategorySectionState extends State<CategorySection> {
   Future<void> fetchAllPosts() async {
     try {
       QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('POST').get();
+          await FirebaseFirestore.instance.collectionGroup("POST").get();
       allPosts = querySnapshot.docs.map((doc) => doc.data()).toList();
       setState(() {}); // Update the state to refresh the UI
     } catch (e) {
@@ -42,7 +42,7 @@ class _CategorySectionState extends State<CategorySection> {
   Widget build(BuildContext context) {
     return Container(
       child: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('POST').snapshots(),
+        stream: FirebaseFirestore.instance.collectionGroup('POST').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -73,7 +73,8 @@ class _CategorySectionState extends State<CategorySection> {
                   },
                   child: Container(
                     height: 30,
-                    margin: const EdgeInsets.symmetric(horizontal: 7),
+                    margin: const EdgeInsets.symmetric(horizontal: 8, ), // Adjust the margin for more space
+                    padding: const EdgeInsets.symmetric(horizontal: 20), // Add padding inside the category
                     decoration: BoxDecoration(
                       color: Colors.amber,
                       borderRadius: BorderRadius.circular(30),
@@ -81,6 +82,9 @@ class _CategorySectionState extends State<CategorySection> {
                     child: Center(
                       child: Text(
                         categoryListType[index],
+                        style: const TextStyle(
+                          fontSize: 16, // Adjust the font size for better visibility
+                        ),
                       ),
                     ),
                   ),

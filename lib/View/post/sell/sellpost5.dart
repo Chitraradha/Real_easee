@@ -8,7 +8,6 @@ import 'package:real__ease/View/home/navi.dart';
 import 'package:real__ease/controller/sellprovider.dart';
 import 'package:real__ease/core/colorpage.dart';
 
-
 class CreateSellPost5 extends StatefulWidget {
   const CreateSellPost5({super.key});
 
@@ -18,46 +17,55 @@ class CreateSellPost5 extends StatefulWidget {
 
 class _CreateSellPost5State extends State<CreateSellPost5> {
   List<File> pickimages = [];
+  bool _isLoading = false; // Loading state variable
+
+  Future<void> _pickAndUploadImages() async {
+    ImagePicker imagePicker = ImagePicker();
+    List<XFile>? files = await imagePicker.pickMultiImage(
+      maxWidth: 1920,
+      imageQuality: 80,
+    );
+    if (files == null) return;
+
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+
+    for (XFile file in files) {
+      String uniqueFileNames = DateTime.now().millisecondsSinceEpoch.toString();
+      Reference referenceRoot = FirebaseStorage.instance.ref();
+      Reference referenceDirImages = referenceRoot.child('image');
+      Reference referenceImageToUpload = referenceDirImages.child(uniqueFileNames);
+      try {
+        await referenceImageToUpload.putFile(File(file.path));
+        String imagesUrl = await referenceImageToUpload.getDownloadURL();
+        print(imagesUrl);
+        print('*****************************************************************');
+        
+        // Update provider with image URLs
+        context.read<PostProvider>().addImageUrl(imagesUrl);
+
+        setState(() {
+          pickimages.add(File(file.path));
+        });
+
+        // Display message after successful upload
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Image Uploaded'))
+        );
+      } catch (error) {
+        print("Error in uploading: $error");
+      }
+    }
+
+    setState(() {
+      _isLoading = false; // End loading
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-
-    Future<void> _pickAnUploadImages() async {
-      ImagePicker imagePicker = ImagePicker();
-      List<XFile>? files = await imagePicker.pickMultiImage(
-        maxWidth: 1920,
-        imageQuality: 80,
-      );
-      if (files == null) return;
-
-      for (XFile file in files) {
-        String uniqueFileNames = DateTime.now().millisecondsSinceEpoch.toString();
-        Reference referenceRoot = FirebaseStorage.instance.ref();
-        Reference referenceDirImages = referenceRoot.child('image');
-        Reference referenceImageToUpload = referenceDirImages.child(uniqueFileNames);
-        try {
-          await referenceImageToUpload.putFile(File(file.path));
-          String imagesUrl = await referenceImageToUpload.getDownloadURL();
-          print(imagesUrl);
-          print('*****************************************************************');
-          
-          // Update provider with image URLs
-          context.read<PostProvider>().addImageUrl(imagesUrl);
-
-          setState(() {
-            pickimages.add(File(file.path));
-          });
-
-          // Display message after successful upload
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Image Uploaded'))
-          );
-        } catch (error) {
-          print("Error in uploading");
-        }
-      }
-    }
 
     return Scaffold(
       body: Column(
@@ -90,7 +98,7 @@ class _CreateSellPost5State extends State<CreateSellPost5> {
 
                         // Image Upload Section
                         GestureDetector(
-                          onTap: _pickAnUploadImages,
+                          onTap: _pickAndUploadImages,
                           child: Container(
                             width: double.infinity,
                             height: 250,
@@ -129,44 +137,51 @@ class _CreateSellPost5State extends State<CreateSellPost5> {
                         ),
                         SizedBox(height: 20),
 
+                        // Loading Indicator
+                        if (_isLoading)
+                          Center(
+                            child: CircularProgressIndicator(),
+                          ),
+
                         // Scrollable image preview
-                        pickimages.isNotEmpty
-                            ? SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: pickimages.map((image) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: Image.file(
-                                          image,
-                                          width: 100,
-                                          height: 100,
-                                          fit: BoxFit.cover,
+                        if (!_isLoading)
+                          pickimages.isNotEmpty
+                              ? SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: pickimages.map((image) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(10),
+                                          child: Image.file(
+                                            image,
+                                            width: 100,
+                                            height: 100,
+                                            fit: BoxFit.cover,
+                                          ),
                                         ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                )
+                              : Container(
+                                  width: double.infinity,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "No images selected",
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 16,
                                       ),
-                                    );
-                                  }).toList(),
-                                ),
-                              )
-                            : Container(
-                                width: double.infinity,
-                                height: 100,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    "No images selected",
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 16,
                                     ),
                                   ),
                                 ),
-                              ),
                         SizedBox(height: 20),
 
                         // Notes Section
@@ -208,10 +223,8 @@ class _CreateSellPost5State extends State<CreateSellPost5> {
                             minimumSize: Size(screenWidth, 50),
                           ),
                           onPressed: () {
-                            print("sell");
-                            String sell='sell';
-                            print('8888887777777777777775555555555555');
-                            context.read<PostProvider>().addsellpost(context,sell);
+                            String sell = 'Sell';
+                            context.read<PostProvider>().addsellpost(context, sell);
                             Navigator.push(
                               context,
                               MaterialPageRoute(

@@ -13,10 +13,11 @@ class CreateRentPost2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+    final _formKey = GlobalKey<FormState>(); // Initialize a global key for form state
+
     return Scaffold(
       body: Consumer<RentProvider>(
-        builder: (context,rent,child) {
+        builder: (context, rent, child) {
           return Column(
             children: [
               appbar(),
@@ -32,86 +33,138 @@ class CreateRentPost2 extends StatelessWidget {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.only(left: 20, right: 10, top: 30),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "I am looking to Rent a property",
-                              style: posttext1,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 10, right: 10),
-                              child: Column(
-                                children: [
-                                  SizedBox(height: 30),
-                                  postTextform(" Price Range", rent.priceController),
-                                  SizedBox(height: 20),
-                                  postTextform(" BedRooms", rent.bedroomcontroller),
-                                  SizedBox(height: 20),
-                                  postTextform(" BathRooms", rent.bathroomcontroller),
-                                  SizedBox(height: 20),
-                                  postTextform(" Car Spaces", rent.carcontroller),
-                                  SizedBox(height: 20),
-                                  postTextform(" No of people", rent.peoplecontroller),
-                                  SizedBox(height: 20),
-                                  postTextform(" Land size (m)", rent.landcontroller),
-                                  SizedBox(height: 20),
-                                  postTextform(" Selling location", rent.sellocationcontroller),
-                                  SizedBox(height: 20),
-                                  TextFormField(
-                                    style: formtextstyle,
-                                    controller: rent.premanentaddcontroller,
-                                    maxLines: 6,
-                                    decoration: InputDecoration(
-                                      hintText: "Address",
-                                      fillColor: RealColor.bgcolor,
-                                      filled: true,
-                                      hintStyle: formtexthit,
-                                      border: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: RealColor.textcolor,
-                                          width: 3,
-                                        ),
-                                        borderRadius: BorderRadius.circular(40),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 50),
-                                  Align(
-                                    alignment: Alignment.topCenter,
-                                    child: SizedBox(
-                                      width: screenWidth * 0.8,
-                                      height: 60,
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: RealColor.buttncolor,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(35),
-                                          ),
-                                        ),
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(builder: (context) => CreateRentPost3()),
-                                          );
-                                        },
-                                        child: Text("Next", style: buttonfont),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 25),
-                                  Center(
-                                    child: TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: Text("Back to Edit", style: buttoncolor),
-                                    ),
-                                  ),
-                                ],
+                        child: Form(
+                          key: _formKey, // Assign the global key to the Form widget
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "I am looking to Rent a property",
+                                style: posttext1,
                               ),
-                            ),
-                          ],
+                              Padding(
+                                padding: const EdgeInsets.only(left: 10, right: 10),
+                                child: Column(
+                                  children: [
+                                    SizedBox(height: 30),
+                                    postTextform("Price Range", rent.priceController, (input) {
+                                      if (input == null || input.isEmpty) {
+                                        return 'Please enter a price range';
+                                      }
+                                      return null;
+                                    }),
+                                    SizedBox(height: 20),
+                                    postTextform("BedRooms", rent.bedroomcontroller, (input) {
+                                      if (input == null || input.isEmpty) {
+                                        return 'Please enter the number of bedrooms';
+                                      }
+                                      return null;
+                                    }),
+                                    SizedBox(height: 20),
+                                    postTextform("BathRooms", rent.bathroomcontroller, (input) {
+                                      if (input == null || input.isEmpty) {
+                                        return 'Please enter the number of bathrooms';
+                                      }
+                                      return null;
+                                    }),
+                                    SizedBox(height: 20),
+                                    postTextform("Car Spaces", rent.carcontroller, (input) {
+                                      if (input == null || input.isEmpty) {
+                                        return 'Please enter the number of car spaces';
+                                      }
+                                      return null;
+                                    }),
+                                    SizedBox(height: 20),
+                                    postTextform("No of people", rent.peoplecontroller, (input) {
+                                      if (input == null || input.isEmpty) {
+                                        return 'Please enter the number of people';
+                                      }
+                                      return null;
+                                    }),
+                                    SizedBox(height: 20),
+                                    postTextform("Land size (m)", rent.landcontroller, (input) {
+                                      if (input == null || input.isEmpty) {
+                                        return 'Please enter the land size';
+                                      }
+                                      return null;
+                                    }),
+                                    SizedBox(height: 20),
+                                    postTextform("Selling location", rent.sellocationcontroller, (input) {
+                                      if (input == null || input.isEmpty) {
+                                        return 'Please enter the selling location';
+                                      }
+                                      return null;
+                                    }),
+                                    SizedBox(height: 20),
+                                    TextFormField(
+                                      style: formtextstyle,
+                                      controller: rent.premanentaddcontroller,
+                                      maxLines: 6,
+                                      decoration: InputDecoration(
+                                        hintText: "Permanent Address",
+                                        fillColor: RealColor.bgcolor,
+                                        filled: true,
+                                        hintStyle: formtexthit,
+                                        border: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: RealColor.textcolor,
+                                            width: 3,
+                                          ),
+                                          borderRadius: BorderRadius.circular(40),
+                                        ),
+                                      ),
+                                      validator: (input) {
+                                        if (input == null || input.isEmpty) {
+                                          return 'Please enter your address';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    SizedBox(height: 50),
+                                    Align(
+                                      alignment: Alignment.topCenter,
+                                      child: SizedBox(
+                                        width: screenWidth * 0.8,
+                                        height: 60,
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: RealColor.buttncolor,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(35),
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            if (_formKey.currentState?.validate() ?? false) {
+                                              // If the form is valid, proceed to the next page
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(builder: (context) => CreateRentPost3()),
+                                              );
+                                            } else {
+                                              // Optionally show a message or a snackbar for invalid input
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text('Please fill in all fields correctly.')),
+                                              );
+                                            }
+                                          },
+                                          child: Text("Next", style: buttonfont),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 25),
+                                    Center(
+                                      child: TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text("Back to Edit", style: buttoncolor),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:real__ease/core/colorpage.dart';
 import 'package:real__ease/core/fontfamily.dart';
 
-loginTextform(labeltext, controll) {
+loginTextform(labeltext, controll, String? Function(String? value) validateName) {
   return TextFormField(
     style: formtextstyle,
     controller: controll,
@@ -43,21 +43,24 @@ create_Post(titlepost,onTap) {
   );
 }
 
-postTextform(labeltext, controll) {
+Widget postTextform(String labeltext, TextEditingController controll, String? Function(String?)? validator) {
   return TextFormField(
     style: formtextstyle,
     controller: controll,
+    validator: validator,
     decoration: InputDecoration(
-        hintText: labeltext,
-        fillColor: RealColor.bgcolor,
-        filled: true,
-        hintStyle: formtexthit,
-        border: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: RealColor.textcolor,
-              width: 3,
-            ),
-            borderRadius: BorderRadius.circular(40))),
+      hintText: labeltext,
+      fillColor: RealColor.bgcolor,
+      filled: true,
+      hintStyle: formtexthit,
+      border: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: RealColor.textcolor,
+          width: 3,
+        ),
+        borderRadius: BorderRadius.circular(40),
+      ),
+    ),
   );
 }
 

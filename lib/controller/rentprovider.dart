@@ -1,11 +1,12 @@
 import 'dart:collection';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:real__ease/model/postmodel.dart';
 
-class RentProvider extends ChangeNotifier{
-   final FirebaseFirestore db = FirebaseFirestore.instance;
+class RentProvider extends ChangeNotifier {
+  final FirebaseFirestore db = FirebaseFirestore.instance;
+  FirebaseAuth _auth = FirebaseAuth.instance;
 
   TextEditingController pnamecontroller = TextEditingController();
   TextEditingController emailcontroller = TextEditingController();
@@ -20,10 +21,10 @@ class RentProvider extends ChangeNotifier{
   TextEditingController peoplecontroller = TextEditingController();
   TextEditingController landcontroller = TextEditingController();
   TextEditingController sellocationcontroller = TextEditingController();
-  TextEditingController notesController = TextEditingController(); 
-   late String rentandsell;
+  TextEditingController notesController = TextEditingController();
+  late String rentandsell;
 
-  List<String> imagesUrls = []; // List for image URLs
+  List<String> imagesUrls = [];
 
   String? selectedSellingType;
   String? selectedPropertyType;
@@ -32,6 +33,7 @@ class RentProvider extends ChangeNotifier{
   List<String> indoorfeatures = [];
   List<String> climatefeatures = [];
 
+  // Setters for dropdown selections
   void setSellingType(String type) {
     selectedSellingType = type;
     notifyListeners();
@@ -47,7 +49,7 @@ class RentProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  // Function to toggle outdoor features
+  // Functions to toggle the features
   void toggleOutdoorfeatures(String outdoor) {
     if (outdoorfeatures.contains(outdoor)) {
       outdoorfeatures.remove(outdoor);
@@ -57,7 +59,6 @@ class RentProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  // Function to toggle indoor features
   void toggleIndoorfeatures(String indoor) {
     if (indoorfeatures.contains(indoor)) {
       indoorfeatures.remove(indoor);
@@ -67,7 +68,6 @@ class RentProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  // Function to toggle climate features
   void toggleClimatefeatures(String climate) {
     if (climatefeatures.contains(climate)) {
       climatefeatures.remove(climate);
@@ -77,9 +77,10 @@ class RentProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  
-  void addrentpost(BuildContext context,String rentandsell) {
+  // Function to add rent post
+  void addrentpost(BuildContext context, String rentandsell) {
     String pid = DateTime.now().millisecondsSinceEpoch.toString();
+    String? uid = _auth.currentUser!.uid;
     HashMap<String, Object> map = HashMap();
     map["pname"] = pnamecontroller.text;
     map["pemail"] = emailcontroller.text;
@@ -98,23 +99,21 @@ class RentProvider extends ChangeNotifier{
     map["typeofproperty"] = selectedPropertyType ?? "N/A";
     map["sellingmethod"] = methodsofselling ?? "N/A";
     map["Outdoor"] = outdoorfeatures.join(", ");
-    map["Indoor"] = indoorfeatures.join(", "); // Store indoor features
-    map["Climate"] = climatefeatures.join(", "); // Store climate features
-    map["Images"] = imagesUrls; 
-    map["Notes"] = notesController.text; 
-    map["RentAndSell"]=rentandsell;
+    map["Indoor"] = indoorfeatures.join(", ");
+    map["Climate"] = climatefeatures.join(", ");
+    map["Images"] = imagesUrls;
+    map["Notes"] = notesController.text;
+    map["RentAndSell"] = rentandsell;
 
-    db.collection("POST").doc(pid).set(map);
+    db.collection("Userpost").doc(uid).collection("POST").doc(pid).set(map);
   }
 
-  
   void addImageUrl(String url) {
     imagesUrls.add(url);
     notifyListeners();
   }
 
-  
-  void postClear(){
+  void postClear() {
     pnamecontroller.clear();
     emailcontroller.clear();
     phonecontroller.clear();
@@ -129,87 +128,84 @@ class RentProvider extends ChangeNotifier{
     landcontroller.clear();
     sellocationcontroller.clear();
     notesController.clear();
-    imagesUrls.clear(); // Clear the image URLs
-    outdoorfeatures.clear(); // Clear the outdoor features
-    indoorfeatures.clear(); // Clear the indoor features
-    climatefeatures.clear(); // Clear the climate features
+    imagesUrls.clear();
+    outdoorfeatures.clear();
+    indoorfeatures.clear();
+    climatefeatures.clear();
     notifyListeners();
   }
 
- List<PostModel>rentingPosts=[];
+  List<PostModel> rentingPosts = [];
   bool isLoading = false;
   String? errorMessage;
-  void getRentPosts(){
 
-    db.collection("POST").get().then((value){
-
-      if(value.docs.isNotEmpty){
+  void getRentPosts() {
+    db.collectionGroup("POST").get().then((value) {
+      if (value.docs.isNotEmpty) {
         rentingPosts.clear();
-        for(var element in value.docs){
-          rentingPosts.add(
-            PostModel(
-            element.id,
-            element.get("pname"),
-            element.get("pemail"),
-            element.get("Pphone"),
-            element.get("paddress"),
-            element.get("city"),
-            element.get("price"),
-            element.get("bed"),
-            element.get("bath"),
-            element.get("permanentads"),
-            element.get("car"),
-            element.get("time"),
-            element.get("land"),
-            element.get("sellloc"),
-            element.get("typeofselling"),
-            element.get("typeofproperty"),
-            element.get("sellingmethod"),
-            element.get("Outdoor").split(", "),
-            element.get("Indoor").split(", "),
-            element.get("Climate").split(", "),
-            List<String>.from(element.get("Images")),
-            element.get("Notes"),
-            element.get("RentAndSell")
-          )
-          );
+        for (var element in value.docs) {
+          rentingPosts.add(PostModel(
+              element.id,
+              element.get("pname"),
+              element.get("pemail"),
+              element.get("Pphone"),
+              element.get("paddress"),
+              element.get("city"),
+              element.get("price"),
+              element.get("bed"),
+              element.get("bath"),
+              element.get("permanentads"),
+              element.get("car"),
+              element.get("time"),
+              element.get("land"),
+              element.get("sellloc"),
+              element.get("typeofselling"),
+              element.get("typeofproperty"),
+              element.get("sellingmethod"),
+              element.get("Outdoor").split(", "),
+              element.get("Indoor").split(", "),
+              element.get("Climate").split(", "),
+              List<String>.from(element.get("Images")),
+              element.get("Notes"),
+              element.get("RentAndSell")));
           notifyListeners();
-        } notifyListeners();
+        }
+        notifyListeners();
       }
     });
   }
 
-
+  
   void updatesellpost(String id) {
-  db.collection("POST").doc(id).get().then((value) {
-    if (value.exists) {
-      Map<dynamic, dynamic> map = value.data() as Map;
-      
-      pnamecontroller.text = map['pname'].toString();
-      emailcontroller.text = map['pemail'].toString();
-      phonecontroller.text = map['Pphone'].toString();
-      addresscontroller.text = map['paddress'].toString();
-      citycontroller.text = map['city'].toString();
-      priceController.text = map['price'].toString();
-      bedroomcontroller.text = map['bed'].toString();
-      bathroomcontroller.text = map['bath'].toString();
-      premanentaddcontroller.text = map['permanentads'].toString();
-      carcontroller.text = map['car'].toString();
-      peoplecontroller.text = map['time'].toString();
-      landcontroller.text = map['land'].toString();
-      sellocationcontroller.text = map['sellloc'].toString();
-      notesController.text = map['Notes'].toString();
-      outdoorfeatures = map['Outdoor'].toString().split(', ');
-      indoorfeatures = map['Indoor'].toString().split(', ');
-      climatefeatures = map['Climate'].toString().split(', ');
-      
-      notifyListeners();
-    }
-  });
-}
+    db.collection("POST").doc(id).get().then((value) {
+      if (value.exists) {
+        Map<dynamic, dynamic> map = value.data() as Map;
+        pnamecontroller.text = map['pname'].toString();
+        emailcontroller.text = map['pemail'].toString();
+        phonecontroller.text = map['Pphone'].toString();
+        addresscontroller.text = map['paddress'].toString();
+        citycontroller.text = map['city'].toString();
+        priceController.text = map['price'].toString();
+        bedroomcontroller.text = map['bed'].toString();
+        bathroomcontroller.text = map['bath'].toString();
+        premanentaddcontroller.text = map['permanentads'].toString();
+        carcontroller.text = map['car'].toString();
+        peoplecontroller.text = map['time'].toString();
+        landcontroller.text = map['land'].toString();
+        sellocationcontroller.text = map['sellloc'].toString();
+        notesController.text = map['Notes'].toString();
+        outdoorfeatures = map['Outdoor'].toString().split(', ');
+        indoorfeatures = map['Indoor'].toString().split(', ');
+        climatefeatures = map['Climate'].toString().split(', ');
 
-void deletesellpost(std,context){
-    db.collection("POST").doc(std).delete();
+        notifyListeners();
+      }
+    });
+  }
+
+  
+  void deletesellpost(String id, BuildContext context) {
+    db.collection("POST").doc(id).delete();
     getRentPosts();
     notifyListeners();
   }

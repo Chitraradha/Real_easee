@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:real__ease/View/intro/splashsrn.dart';
+import 'package:real__ease/controller/profileprovider.dart';
 import 'package:real__ease/controller/rentprovider.dart';
 import 'package:real__ease/controller/sellprovider.dart';
 import 'package:real__ease/controller/homeprovider.dart';
@@ -25,7 +26,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context)=>PostProvider()),
         ChangeNotifierProvider(create: (context)=>TypeofpropertyCategory()),
-        ChangeNotifierProvider(create: (context)=>RentProvider())
+        ChangeNotifierProvider(create: (context)=>RentProvider()),
+        ChangeNotifierProvider(create: (context)=>ProfileProvider())
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
